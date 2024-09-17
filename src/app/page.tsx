@@ -1,95 +1,58 @@
-import Image from "next/image";
+"use client";
+
+import { initializeApp } from "firebase/app";
+import { getMessaging, getToken, onMessage } from "firebase/messaging";
+import React, { useEffect, useState } from "react";
+import { firebaseConfig } from "./firebaseConfig";
 import styles from "./page.module.css";
 
-export default function Home() {
-  return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <Image
-          className={styles.logo}
-          src="https://nextjs.org/icons/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol>
-          <li>
-            Get started by editing <code>src/app/page.tsx</code>.
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+const Home = () => {
+	const [token, setToken] = useState<string | null>(null);
 
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className={styles.logo}
-              src="https://nextjs.org/icons/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-            className={styles.secondary}
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className={styles.footer}>
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
-  );
-}
+	useEffect(() => {
+		const requestPermissionAndRegisterServiceWorker = async () => {
+			try {
+				const registration = await navigator.serviceWorker.register(
+					"firebase-messaging-sw.js",
+				);
+				const permission = await Notification.requestPermission();
+				if (permission !== "granted") {
+					console.log("Unable to get permission to notify.");
+					return;
+				}
+				onMessage(messaging, (payload) => {
+					console.log("Message received. ", payload);
+				});
+				const currentToken = await getToken(messaging, {
+					serviceWorkerRegistration: registration,
+					vapidKey: "BI7...",
+				});
+				if (currentToken) {
+					setToken(currentToken);
+					console.log("Token generated : ", currentToken);
+				} else {
+					console.log(
+						"No registration token available. Request permission to generate one.",
+					);
+				}
+			} catch (err) {
+				console.log("An error occurred while retrieving token. ", err);
+			}
+		};
+
+		requestPermissionAndRegisterServiceWorker();
+	}, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+	// Initialize Firebase
+	initializeApp(firebaseConfig);
+	const messaging = getMessaging();
+
+	return (
+		<div className={styles.container}>
+			<h1>Home</h1>
+			<p>Token: {token}</p>
+		</div>
+	);
+};
+
+export default Home;
