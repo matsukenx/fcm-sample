@@ -1,10 +1,16 @@
 //Firebase Config values imported from .env file
-export const firebaseConfig = {
+
+import { initializeApp } from "firebase/app";
+import { getMessaging } from "firebase/messaging";
+
+const firebaseConfig = {
 	apiKey: "AIz...",
-	authDomain: "fcm...",
-	projectId: "fcm...",
-	storageBucket: "fcm...",
-	messagingSenderId: "8409...",
-	appId: "1:84...",
-	measurementId: "G-N...",
+	authDomain: "mot...",
+	projectId: "mot...",
+	storageBucket: "mot...",
+	messagingSenderId: "207...",
+	appId: "1:2...",
 };
+
+initializeApp(firebaseConfig);
+export const messaging = getMessaging();
