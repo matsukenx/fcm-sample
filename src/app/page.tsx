@@ -4,6 +4,7 @@ import { getToken } from "firebase/messaging";
 import React, { useEffect, useState } from "react";
 import { messaging } from "./firebaseConfig";
 import styles from "./page.module.css";
+import { PhoneVerification } from "./phoneVerification";
 
 const Home = () => {
 	const [token, setToken] = useState<string | null>(null);
@@ -47,10 +48,11 @@ const Home = () => {
 	}, []); // eslint-disable-line react-hooks/exhaustive-deps
 
 	return (
-		<div className={styles.container}>
-			<h1>Home</h1>
-			<p>Token: {token}</p>
-		</div>
+			<div className={styles.container}>
+				<h1>Home</h1>
+				<p>Token: {token}</p>
+				<PhoneVerification />
+			</div>
 	);
 };
 
